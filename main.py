@@ -1,6 +1,5 @@
 from Logics import *
 import sys
-import numpy
 import pygame as pg
 
 ## Цикл игры:
@@ -21,9 +20,11 @@ BLACK = (0, 0, 0)
     2: (255, 255, 255),
     4: (255, 255, 128),
     8: (255, 255, 0),
-    16: (255, 235, 255),
-    32: (255, 235, 128),
-    64: (255, 235, 0)
+    16: (255, 215, 255),
+    32: (255, 215, 128),
+    64: (255, 215, 0),
+    128: (255, 185, 255),
+    264: (255, 185, 128),
 }
 
 
@@ -60,6 +61,8 @@ def draw_field(mas, COLORS):
                 screen.blit(text, (text_x, text_y))
 
 
+# Отрисовка верхнего бара
+
 mas = [[0, 0, 0, 0],
        [0, 0, 0, 0],
        [0, 0, 0, 0],
@@ -88,7 +91,7 @@ pg.display.update()
 
 ## Цикл игры ##
 # =============================================================================
-while is_zero_in_mas(mas):
+while is_zero_in_mas(mas) or can_move(mas):
     # Обработчик событий
     for event in pg.event.get():
         if event.type == pg.QUIT:  # Если пользователь нажал на выход
@@ -97,15 +100,19 @@ while is_zero_in_mas(mas):
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:  # Если нажата кнопка - влево
                 mas = move_left(mas)
-            elif event.key == pg.K_RIGHT:  # Если нажата кнопка - влево
+            elif event.key == pg.K_RIGHT:  # Если нажата кнопка - вправо
                 mas = move_right(mas)
+            elif event.key == pg.K_UP:  # Если нажата кнопка - вверх
+                mas = move_up(mas)
+            elif event.key == pg.K_DOWN:  # Если нажата кнопка - вниз
+                mas = move_down(mas)
+            else:
+                continue
             # pretty_print(mas)
             set_2(mas)
             draw_field(mas, СOLORS)  # Перерисовываем поле
             pg.display.update()
 # =============================================================================
-
-
 
 
 

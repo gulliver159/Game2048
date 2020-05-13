@@ -1,6 +1,8 @@
 import random as rnd
+import numpy as np
 
 
+# region main logic
 # Вывод массива
 def pretty_print(mas):
     print("-" * 10)
@@ -40,7 +42,10 @@ def get_index_from_number(mas, num):
     return x, y
 
 
+# endregion
+
 ## Реализация перемещения ячеек по логике игры ##
+# region moving
 # При свайпе влево
 def move_left(mas):
     lenght_mas = len(mas[0])
@@ -79,7 +84,60 @@ def move_right(mas):
     return mas
 
 
+# При свайпе вверх
+def move_up(mas):
+    lenght_mas = len(mas)
+    for j in range(lenght_mas):
+        column = []  # Будет храниться столбец массива
+        for i in range(lenght_mas):
+            if mas[i][j] != 0:
+                column.append(mas[i][j])
+        while len(column) != lenght_mas:  # Пока не подойдет размер
+            column.append(0)
+        # Сложение чисел
+        for i in range(lenght_mas - 1):
+            if column[i] == column[i + 1] and column[i] != 0:
+                column[i] *= 2
+                column.pop(i + 1)
+                column.append(0)
+        # Вставка обратно в массив
+        for i in range(lenght_mas):
+            mas[i][j] = column[i]
+    return mas
 
+
+# При свайпе вниз
+def move_down(mas):
+    lenght_mas = len(mas)
+    for j in range(lenght_mas):
+        column = []  # Будет храниться столбец массива
+        for i in range(lenght_mas):
+            if mas[i][j] != 0:
+                column.append(mas[i][j])
+        while len(column) != lenght_mas:  # Пока не подойдет размер
+            column.insert(0, 0)
+        # Сложение чисел
+        for i in range(lenght_mas - 1, 0, -1):
+            if column[i] == column[i - 1] and column[i] != 0:
+                column[i] *= 2
+                column.pop(i - 1)
+                column.insert(0, 0)
+        # Вставка обратно в массив
+        for i in range(lenght_mas):
+            mas[i][j] = column[i]
+    return mas
+
+
+# endregion
+
+# Проверка на того, сможет ли пользователь свайпнуть в какую либо сторону
+def can_move(mas):
+    lenght_mas = len(mas)
+    for i in range(lenght_mas - 1):
+        for j in range(lenght_mas - 1):
+            if mas[i][j] == mas[i][j + 1] or mas[i][j] == mas[i + 1][j]:
+                return True
+    return False
 
 
 
