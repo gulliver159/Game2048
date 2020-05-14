@@ -10,6 +10,16 @@ def pretty_print(mas):
         print(*row)
 
 
+def set_2(mas):
+    # input()
+    Empty = get_empty_list(mas)  # Получаем порядковые номера всех пустых ячеек
+    rnd.shuffle(Empty)  # Мешаем их
+    rnd_num = Empty.pop()  # Достаем последнее из списка пустых ячеек
+    x, y = get_index_from_number(mas, rnd_num)
+    mas[x][y] = 2  # Ставим на это место двойку
+    pretty_print(mas)
+
+
 # Возвращает порядковые номера всех пустых клеток поля
 def get_empty_list(mas):
     lenght_mas = len(mas[0])
@@ -47,7 +57,7 @@ def get_index_from_number(mas, num):
 ## Реализация перемещения ячеек по логике игры ##
 # region moving
 # При свайпе влево
-def move_left(mas):
+def move_left(mas, score):
     lenght_mas = len(mas[0])
     for row in mas:
         while 0 in row:
@@ -60,13 +70,14 @@ def move_left(mas):
             # Если числа стоят рядом, то правое умножаем на два, а левое удаляем
             if mas[i][j] == mas[i][j + 1] and mas[i][j] != 0:
                 mas[i][j] *= 2
+                score += mas[i][j]
                 mas[i].pop(j + 1)
                 mas[i].append(0)  # Добавляем недостающие ячейки
-    return mas
+    return mas, score
 
 
 # При свайпе вправо
-def move_right(mas):
+def move_right(mas, score):
     lenght_mas = len(mas[0])
     for row in mas:
         while 0 in row:
@@ -79,13 +90,14 @@ def move_right(mas):
             # Если числа стоят рядом, то правое умножаем на два, а левое удаляем
             if mas[i][j] == mas[i][j - 1] and mas[i][j] != 0:
                 mas[i][j] *= 2
+                score += mas[i][j]
                 mas[i].pop(j - 1)
                 mas[i].insert(0, 0)  # Добавляем недостающие ячейки
-    return mas
+    return mas, score
 
 
 # При свайпе вверх
-def move_up(mas):
+def move_up(mas, score):
     lenght_mas = len(mas)
     for j in range(lenght_mas):
         column = []  # Будет храниться столбец массива
@@ -98,16 +110,17 @@ def move_up(mas):
         for i in range(lenght_mas - 1):
             if column[i] == column[i + 1] and column[i] != 0:
                 column[i] *= 2
+                score += column[i]
                 column.pop(i + 1)
                 column.append(0)
         # Вставка обратно в массив
         for i in range(lenght_mas):
             mas[i][j] = column[i]
-    return mas
+    return mas, score
 
 
 # При свайпе вниз
-def move_down(mas):
+def move_down(mas, score):
     lenght_mas = len(mas)
     for j in range(lenght_mas):
         column = []  # Будет храниться столбец массива
@@ -120,12 +133,13 @@ def move_down(mas):
         for i in range(lenght_mas - 1, 0, -1):
             if column[i] == column[i - 1] and column[i] != 0:
                 column[i] *= 2
+                score += column[i]
                 column.pop(i - 1)
                 column.insert(0, 0)
         # Вставка обратно в массив
         for i in range(lenght_mas):
             mas[i][j] = column[i]
-    return mas
+    return mas, score
 
 
 # endregion
@@ -138,6 +152,4 @@ def can_move(mas):
             if mas[i][j] == mas[i][j + 1] or mas[i][j] == mas[i + 1][j]:
                 return True
     return False
-
-
 

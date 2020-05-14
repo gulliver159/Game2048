@@ -14,6 +14,7 @@ import pygame as pg
 WHITE = (255, 255, 255)
 GRAY = (130, 130, 130)
 BLACK = (0, 0, 0)
+COLOR_TEXT = (255, 127, 0)
 
 СOLORS = {
     0: (130, 130, 130),
@@ -27,16 +28,8 @@ BLACK = (0, 0, 0)
     264: (255, 185, 128),
 }
 
-
-def set_2(mas):
-    # input()
-    Empty = get_empty_list(mas)  # Получаем порядковые номера всех пустых ячеек
-    rnd.shuffle(Empty)  # Мешаем их
-    rnd_num = Empty.pop()  # Достаем последнее из списка пустых ячеек
-    x, y = get_index_from_number(mas, rnd_num)
-    mas[x][y] = 2  # Ставим на это место двойку
-    pretty_print(mas)
-
+# Значение счета игрока
+score = 0
 
 # Отрисовка игрового поля
 def draw_field(mas, COLORS):
@@ -62,6 +55,14 @@ def draw_field(mas, COLORS):
 
 
 # Отрисовка верхнего бара
+def draw_bar(score):
+    pg.draw.rect(screen, WHITE, TITILE_REC)
+    font = pg.font.SysFont("simsun", 48)
+    text = font.render("Score: ", True, COLOR_TEXT)
+    text_value = font.render(f"{score} ", True, COLOR_TEXT)
+    screen.blit(text, (20, 35))
+    screen.blit(text_value, (150, 35))
+
 
 mas = [[0, 0, 0, 0],
        [0, 0, 0, 0],
@@ -87,6 +88,7 @@ set_2(mas)
 
 # Отрисовываем начальное поле
 draw_field(mas, СOLORS)
+draw_bar(score)
 pg.display.update()
 
 ## Цикл игры ##
@@ -99,18 +101,19 @@ while is_zero_in_mas(mas) or can_move(mas):
             sys.exit(0)  # Закрытие окошка
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:  # Если нажата кнопка - влево
-                mas = move_left(mas)
+                mas, score = move_left(mas, score)
             elif event.key == pg.K_RIGHT:  # Если нажата кнопка - вправо
-                mas = move_right(mas)
+                mas, score = move_right(mas, score)
             elif event.key == pg.K_UP:  # Если нажата кнопка - вверх
-                mas = move_up(mas)
+                mas, score = move_up(mas, score)
             elif event.key == pg.K_DOWN:  # Если нажата кнопка - вниз
-                mas = move_down(mas)
+                mas, score = move_down(mas, score)
             else:
                 continue
             # pretty_print(mas)
             set_2(mas)
             draw_field(mas, СOLORS)  # Перерисовываем поле
+            draw_bar(score) # Перерисовываем вехний бар
             pg.display.update()
 # =============================================================================
 
