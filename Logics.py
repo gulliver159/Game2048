@@ -158,6 +158,6 @@ def can_move(mas):
 def is_win(mas):
     for row in mas:
         for i in row:
-            if i == 64:
+            if i == 2048:
                 return True
     return False

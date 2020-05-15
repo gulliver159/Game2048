@@ -103,6 +103,10 @@ def draw_intro():
     pg.draw.rect(screen, WHITE, pg.Rect(0, 0, WIDTH_INTRO, HEIGHT_INTRO))
     font = pg.font.SysFont("simsun", 75)
     text = font.render("Welcome!", True, BLACK)
+
+    font_new_game = pg.font.SysFont("stxingkai", 50)
+    text_new_game = font_new_game.render("Новая игра", True, BLACK)
+
     img2048 = pg.image.load('logo.jpg')
     while True:
         # Обработчик событий
@@ -112,13 +116,17 @@ def draw_intro():
                 sys.exit(0)  # Закрытие окошка
         screen.blit(pg.transform.scale(img2048, [200, 200]), [10, 20])
         screen.blit(text, (230, 85))
+        screen.blit(text_new_game, (157, 255))
         # Кнопки
-        draw_button(90, 290, 110, 45, "4x4", start_game, 4)
-        draw_button(300, 290, 110, 45, "6x6", start_game, 6)
+        draw_button(90, 310, 110, 45, "4x4", start_game, 4)
+        draw_button(300, 310, 110, 45, "6x6", start_game, 6)
+
+        draw_button(87, 420, 325, 45, "Загрузить сохранение", enter_username)
         pg.display.update()
 
 
-def draw_button(x, y, width, height, text_1, action, lenght):
+# Отрисовка кнопок
+def draw_button(x, y, width, height, text_1, action, lenght=None):
     mouse = pg.mouse.get_pos()
     click = pg.mouse.get_pressed()
     font = pg.font.SysFont("stxingkai", 40)
@@ -126,18 +134,29 @@ def draw_button(x, y, width, height, text_1, action, lenght):
     if x < mouse[0] < x + width and y < mouse[1] < y + height:
         pg.draw.rect(screen, COLOR_BUTTON_ACTIVE, (x, y, width, height))
         text = font.render(f"{text_1}", True, BLACK)
-        screen.blit(text, (x + 32, y + 10))
+        if lenght is not None:
+            screen.blit(text, (x + 32, y + 10))
+        else:
+            screen.blit(text, (x + 15, y + 10))
         # При клике на кнопку
         if click[0] == 1:
-            action(lenght)
+            if lenght is not None:
+                # Создание поля
+                mas = [[0 for x in range(lenght)] for x in range(lenght)]
+                action(mas)
+            else:
+                action()
     else:
         pg.draw.rect(screen, BLACK, (x, y, width, height))
         text = font.render(f"{text_1}", True, WHITE)
-        screen.blit(text, (x + 32, y + 10))
+        if lenght is not None:
+            screen.blit(text, (x + 32, y + 10))
+        else:
+            screen.blit(text, (x + 15, y + 10))
 
 
 # Прорисовка вывода при выйгрыше, проигрыше и окончании игры по желанию игрока
-def draw_end_window(score, text_1):
+def draw_end_window(score, text_1, mas=None):
     name = 'Введите имя'
     write_text_on_end_window(score, text_1, name)
     is_find_name = False
@@ -164,6 +183,9 @@ def draw_end_window(score, text_1):
                         break
 
         write_text_on_end_window(score, text_1, name)
+
+    if mas is not None:
+        save_game(score, mas)
 
     pg.quit()
     sys.exit(0)  # Закрытие окошка
@@ -192,10 +214,91 @@ def write_text_on_end_window(score, text_1, name):
     pg.display.update()
 
 
-def start_game(lenght_mas):
+# Сохранение игры в файл
+def save_game(score, mas):
+    global username
+    name_file = username
+    name_file += ".txt"
+    with open(name_file, 'tw', encoding='utf-8') as f:
+        # Вывод счета
+        f.write(str(score) + "\n")
+        # Вывод режима игры (4х4, 6х6)
+        f.write(str(len(mas)) + "\n")
+        for row in mas:
+            for i in row:
+                f.write(str(i) + "\n")
+    print(name_file)
+
+
+# Считывание игры из файла
+def read_game():
+    global username
+    name_file = username
+    name_file += ".txt"
+    with open(name_file) as f:
+        # Ввод счета
+        global score
+        score = int(f.readline())
+        # Ввод режима игры (4х4, 6х6)
+        lenght_mas = int(f.readline())
+        # Создание поля
+        mas = [[0 for x in range(lenght_mas)] for x in range(lenght_mas)]
+        for i in range(lenght_mas):
+            for j in range(lenght_mas):
+                mas[i][j] = int(f.readline())
+
+    start_game(mas)
+
+
+# Ввод имени пользователя
+def enter_username():
+    screen.fill(WHITE)
+    name = 'Введите имя'
+    # Ввод имени игрока
+    font_name = pg.font.SysFont("simsun", 50)
+    text_name = font_name.render(name, True, BLACK)
+    rect_text_name = text_name.get_rect()
+    rect_text_name.center = screen.get_rect().center
+    screen.blit(text_name, (rect_text_name[0], 100))
+    pg.display.update()
+
+    is_find_name = False
+    while not is_find_name:
+        # Обработчик событий
+        for event in pg.event.get():
+            if event.type == pg.QUIT:  # Если пользователь нажал на выход
+                pg.quit()
+                sys.exit(0)  # Закрытие окошка
+            elif event.type == pg.KEYDOWN:
+                # Ввод имени игрока
+                if event.unicode.isalpha():
+                    if name == 'Введите имя':
+                        name = event.unicode
+                    else:
+                        name += event.unicode
+                elif event.key == pg.K_BACKSPACE:
+                    name = name[:-1]
+                elif event.key == pg.K_RETURN:
+                    if len(name) > 2:
+                        global username
+                        username = name
+                        is_find_name = True
+                        break
+        screen.fill(WHITE)
+        font_name = pg.font.SysFont("simsun", 50)
+        text_name = font_name.render(name, True, BLACK)
+        rect_text_name = text_name.get_rect()
+        rect_text_name.center = screen.get_rect().center
+        screen.blit(text_name, (rect_text_name[0], 150))
+        pg.display.update()
+
+    read_game()
+
+
+# Цикл игры
+def start_game(mas):
+    lenght_mas = len(mas)
     prs = Parametrs(lenght_mas)
-    # Создание поля
-    mas = [[0 for x in range(lenght_mas)] for x in range(lenght_mas)]
 
     # Проставляем первые две двойки на поле
     set_2(mas)
@@ -243,7 +346,7 @@ def start_game(lenght_mas):
         if is_win(mas):
             draw_end_window(score, "Вы выйграли!!!")
         elif is_end:
-            draw_end_window(score, "Конец игры")
+            draw_end_window(score, "Конец игры", mas)
         else:
             draw_end_window(score, "Вы проиграли(")
         for event in pg.event.get():
