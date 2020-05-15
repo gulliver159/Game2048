@@ -153,3 +153,11 @@ def can_move(mas):
                 return True
     return False
 
+
+# Проверка на окончания игры (выйгрыш)
+def is_win(mas):
+    for row in mas:
+        for i in row:
+            if i == 64:
+                return True
+    return False
