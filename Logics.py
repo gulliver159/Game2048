@@ -161,3 +161,22 @@ def is_win(mas):
             if i == 2048:
                 return True
     return False
+
+
+# Проверка на достижение нужного значения на поле
+def is_win_bot(mas, max_value):
+    for row in mas:
+        for i in row:
+            if i == max_value:
+                return True
+    return False
+
+
+# Небольшой хак, все элементы на поле умножаются на два, при нажатии определенной кнопки
+def multiply_on_2(mas):
+    for i in range(len(mas)):
+        for j in range(len(mas)):
+            if mas[i][j] != 1024:
+                mas[i][j] *= 2
+    return mas
+
